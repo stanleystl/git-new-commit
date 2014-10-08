@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+from subprocess import call
+
+summary_max_chars = 50
+
+class GitMessageWriter:
+	
+	def write(self, message):
+		call(["git commit", "-m", message])
+
+
+class StdoutMessageWriter:
+
+	def write(self, message):
+		print("git commit -m \"" + message + "\"")
+
+
+class MessageBuildElementChain:
+
+	def ask_user(self, question):
+		return raw_input(question)
+
+	def call_successor(self, built_message):
+		if not (self.successor is None):
+			self.successor.handle(built_message)
+
+class LabelMessageBuildElementChain(MessageBuildElementChain):
+
+	def handle(self, built_message):
+		label = MessageBuildElementChain.ask_user(self, "Classification:")
+		built_message += label
+		MessageBuildElementChain.call_successor(self, built_message)
+
+class RemarksMessageBuildElementChain(MessageBuildElementChain):
+
+	def handle(self, built_message):
+		remarks = MessageBuildElementChain.ask_user(self, "Remarks:")
+		built_message += " - " + remarks
+		MessageBuildElementChain.call_successor(self, built_message)		
+
+class WriterMessageBuildElementChain(MessageBuildElementChain):
+
+	def __init__(self, writer):
+			self.writer = writer
+
+	def handle(self, built_message):
+		self.writer.write(built_message)
+
+
+chainRoot = LabelMessageBuildElementChain()
+remarksChainElement = RemarksMessageBuildElementChain()
+chainRoot.successor = remarksChainElement
+writer = StdoutMessageWriter()
+writerChainElement = WriterMessageBuildElementChain(writer)
+remarksChainElement.successor = writerChainElement
+
+
+chainRoot.handle("")
