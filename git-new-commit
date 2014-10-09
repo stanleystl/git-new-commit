@@ -18,8 +18,19 @@ class StdoutMessageWriter:
 
 class MessageBuildElementChain:
 
-	def ask_user(self, question):
-		return raw_input(question + "\n")
+	def ask_user(self, question, options = None):
+		if options is None: 
+			return raw_input(question + "\n")
+		else:
+			selected_index = 0
+			while(selected_index <= 0 or selected_index >= len(options)):
+				i = 0
+				for option in options:
+					i = i + 1
+					print(str(i) + " - " + option)
+				selected_index = int(raw_input())
+			return options[selected_index - 1]
+
 
 	def call_successor(self, built_message):
 		if not (self.successor is None):
@@ -32,7 +43,7 @@ class MessageBuildElementChain:
 class LabelMessageBuildElementChain(MessageBuildElementChain):
 
 	def handle(self, built_message):
-		label = MessageBuildElementChain.ask_user(self, "Classification:")
+		label = MessageBuildElementChain.ask_user(self, "Classification:", ["BUGFIX", "NEWFEATURE", "MISC"])
 		built_message += label
 		MessageBuildElementChain.call_successor(self, built_message)
 
