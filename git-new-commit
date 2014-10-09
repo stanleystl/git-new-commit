@@ -4,6 +4,9 @@ from subprocess import call
 
 summary_max_chars = 50
 
+config = {}
+execfile("new-commit.conf", config)
+
 class GitMessageWriter:
 	
 	def write(self, message):
@@ -17,6 +20,9 @@ class StdoutMessageWriter:
 
 
 class MessageBuildElementChain:
+
+	def __init__(self):
+		self.successor = None
 
 	def ask_user(self, question, options = None):
 		if options is None: 
@@ -42,8 +48,8 @@ class MessageBuildElementChain:
 
 class LabelMessageBuildElementChain(MessageBuildElementChain):
 
-	def __init__(self, labels):
-		self.labels = labels
+	def __init__(self):
+		self.labels = config["labels"]
 
 	def handle(self, built_message):
 		label = MessageBuildElementChain.ask_user(self, "Classification:", self.labels)
@@ -73,13 +79,27 @@ class WriterMessageBuildElementChain(MessageBuildElementChain):
 	def handle(self, built_message):
 		self.writer.write(built_message)
 
+def get_class( kls ):
+    parts = kls.split('.')
+    module = ".".join(parts[:-1])
+    m = __import__( module )
+    for comp in parts[1:]:
+        m = getattr(m, comp)            
+    return m
 
-config = {}
-execfile("new-commit.conf", config)
+def build_chain(elements):
+	chain = chain_root = None
+	for element in elements:
+		D = get_class(__name__ + "." + element + "MessageBuildElementChain")
+		chain_element = D()
+		if chain_root is None:
+			chain_root = chain_element
+		chain = chain_element if chain is None else chain.chain(chain_element)
+	writer = StdoutMessageWriter()
+	chain.chain(WriterMessageBuildElementChain(writer))
+	return chain_root
 
-chainRoot = LabelMessageBuildElementChain(config["labels"])
-(chainRoot.chain(SummaryMessageBuildElementChain())
-		  .chain(RemarksMessageBuildElementChain())
-		  .chain(WriterMessageBuildElementChain(StdoutMessageWriter())))
 
-chainRoot.handle("")
+chain_root = build_chain(config["elements"])
+
+chain_root.handle("")
