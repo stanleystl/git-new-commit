@@ -47,12 +47,20 @@ class LabelMessageBuildElementChain(MessageBuildElementChain):
 		built_message += label
 		MessageBuildElementChain.call_successor(self, built_message)
 
+class SummaryMessageBuildElementChain(MessageBuildElementChain):
+
+	def handle(self, built_message):
+		available_chars = summary_max_chars - len(built_message) - 1
+		summary = MessageBuildElementChain.ask_user(self, "Summary message - only " + str(available_chars) + " characters available:")
+		built_message += " " + summary
+		MessageBuildElementChain.call_successor(self, built_message)
+
 class RemarksMessageBuildElementChain(MessageBuildElementChain):
 
 	def handle(self, built_message):
 		remarks = MessageBuildElementChain.ask_user(self, "Remarks:")
 		built_message += " - " + remarks
-		MessageBuildElementChain.call_successor(self, built_message)		
+		MessageBuildElementChain.call_successor(self, built_message)
 
 class WriterMessageBuildElementChain(MessageBuildElementChain):
 
@@ -64,7 +72,8 @@ class WriterMessageBuildElementChain(MessageBuildElementChain):
 
 
 chainRoot = LabelMessageBuildElementChain()
-(chainRoot.chain(RemarksMessageBuildElementChain())
+(chainRoot.chain(SummaryMessageBuildElementChain())
+		  .chain(RemarksMessageBuildElementChain())
 		  .chain(WriterMessageBuildElementChain(StdoutMessageWriter())))
 
 chainRoot.handle("")
