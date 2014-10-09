@@ -19,11 +19,15 @@ class StdoutMessageWriter:
 class MessageBuildElementChain:
 
 	def ask_user(self, question):
-		return raw_input(question)
+		return raw_input(question + "\n")
 
 	def call_successor(self, built_message):
 		if not (self.successor is None):
 			self.successor.handle(built_message)
+
+	def chain(self, successor):
+		self.successor = successor
+		return successor
 
 class LabelMessageBuildElementChain(MessageBuildElementChain):
 
@@ -49,11 +53,7 @@ class WriterMessageBuildElementChain(MessageBuildElementChain):
 
 
 chainRoot = LabelMessageBuildElementChain()
-remarksChainElement = RemarksMessageBuildElementChain()
-chainRoot.successor = remarksChainElement
-writer = StdoutMessageWriter()
-writerChainElement = WriterMessageBuildElementChain(writer)
-remarksChainElement.successor = writerChainElement
-
+(chainRoot.chain(RemarksMessageBuildElementChain())
+		  .chain(WriterMessageBuildElementChain(StdoutMessageWriter())))
 
 chainRoot.handle("")
