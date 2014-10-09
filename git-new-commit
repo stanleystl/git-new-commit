@@ -42,8 +42,11 @@ class MessageBuildElementChain:
 
 class LabelMessageBuildElementChain(MessageBuildElementChain):
 
+	def __init__(self, labels):
+		self.labels = labels
+
 	def handle(self, built_message):
-		label = MessageBuildElementChain.ask_user(self, "Classification:", ["BUGFIX", "NEWFEATURE", "MISC"])
+		label = MessageBuildElementChain.ask_user(self, "Classification:", self.labels)
 		built_message += label
 		MessageBuildElementChain.call_successor(self, built_message)
 
@@ -71,7 +74,10 @@ class WriterMessageBuildElementChain(MessageBuildElementChain):
 		self.writer.write(built_message)
 
 
-chainRoot = LabelMessageBuildElementChain()
+config = {}
+execfile("new-commit.conf", config)
+
+chainRoot = LabelMessageBuildElementChain(config["labels"])
 (chainRoot.chain(SummaryMessageBuildElementChain())
 		  .chain(RemarksMessageBuildElementChain())
 		  .chain(WriterMessageBuildElementChain(StdoutMessageWriter())))
