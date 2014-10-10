@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from subprocess import call
+from subprocess import Popen, PIPE
 
 summary_max_chars = 50
 
@@ -16,7 +17,18 @@ class GitMessageWriter:
 class StdoutMessageWriter:
 
 	def write(self, message):
-		print("git commit -m \"" + message + "\"")
+		proc = Popen('git status -s', stdout=PIPE)
+		out, err = proc.communicate()
+		outList = out.split()
+		files = ""
+		count = 0
+		for i in (outList[1::2]):
+			if count == 0:
+				files = files + i
+			else:
+				files = files + ' ' + i
+			count+=1
+		print("git commit -m \"" + message + ' ' + '('+ files + ')' + "\"")
 
 
 class MessageBuildElementChain:
