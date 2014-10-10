@@ -17,18 +17,20 @@ class GitMessageWriter:
 class StdoutMessageWriter:
 
 	def write(self, message):
+		files = ""
+		count = 0
 		proc = Popen('git status -s', stdout=PIPE)
 		out, err = proc.communicate()
 		outList = out.split()
-		files = ""
-		count = 0
 		for i in (outList[1::2]):
 			if count == 0:
 				files = files + i
 			else:
-				files = files + ' ' + i
+				files = files + ',' + i
 			count+=1
-		print("git commit -m \"" + message + ' ' + '('+ files + ')' + "\"")
+		if len(files) > 0:
+			files = '('+files+')'
+		print("git commit -m \"" + message + ' ' + files + "\"")
 
 
 class MessageBuildElementChain:
