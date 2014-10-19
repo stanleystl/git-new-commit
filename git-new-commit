@@ -13,7 +13,6 @@ class GitMessageWriter:
 	def write(self, message):
 		call(["git commit", "-m", message])
 
-
 class StdoutMessageWriter:
 
 	def write(self, message):
@@ -21,17 +20,23 @@ class StdoutMessageWriter:
 		count = 0
 		proc = Popen('git status -s', stdout=PIPE)
 		out, err = proc.communicate()
-		outList = out.split()
-		for i in (outList[1::2]):
-			if count == 0:
-				files = files + i
-			else:
-				files = files + ',' + i
-			count+=1
+		outList = out.split('\n')
+		#for i in (outList[1::2]):
+		for i in outList:
+			if i != '':
+			# len_message = len(message) + len(files) + len(i)
+			# if len(message) + len(files) + len(i) < summary_max_chars:
+				# print len_message
+				if count == 0:
+					files = files + i
+				else:
+					files = files + ',' + i
+				count+=1
 		if len(files) > 0:
 			files = '('+files+')'
+		size_string = str(len(message + ' ' + files))
 		print("git commit -m \"" + message + ' ' + files + "\"")
-
+		print("DEBUG:" + size_string)
 
 class MessageBuildElementChain:
 
@@ -66,7 +71,7 @@ class LabelMessageBuildElementChain(MessageBuildElementChain):
 		self.labels = config["labels"]
 
 	def handle(self, built_message):
-		label = MessageBuildElementChain.ask_user(self, "Classification:", self.labels)
+		label = MessageBuildElementChain.ask_user(self, "Label:", self.labels)
 		built_message += label
 		MessageBuildElementChain.call_successor(self, built_message)
 
@@ -74,15 +79,18 @@ class SummaryMessageBuildElementChain(MessageBuildElementChain):
 
 	def handle(self, built_message):
 		available_chars = summary_max_chars - len(built_message) - 1
-		summary = MessageBuildElementChain.ask_user(self, "Summary message - only " + str(available_chars) + " characters available:")
-		built_message += " " + summary
+		summary = MessageBuildElementChain.ask_user(self, "Summary (" + str(available_chars) + " characters left):")
+		if len(summary) > 0:
+			built_message += " " + summary
 		MessageBuildElementChain.call_successor(self, built_message)
 
 class RemarksMessageBuildElementChain(MessageBuildElementChain):
 
 	def handle(self, built_message):
-		remarks = MessageBuildElementChain.ask_user(self, "Remarks:")
-		built_message += " - " + remarks
+		available_chars = summary_max_chars - len(built_message) - 1
+		remarks = MessageBuildElementChain.ask_user(self, "Remarks (" + str(available_chars) + " characters left):")
+		if len(remarks) > 0:
+			built_message += " - " + remarks
 		MessageBuildElementChain.call_successor(self, built_message)
 
 class WriterMessageBuildElementChain(MessageBuildElementChain):
