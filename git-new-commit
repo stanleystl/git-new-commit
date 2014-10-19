@@ -20,23 +20,26 @@ class StdoutMessageWriter:
 		count = 0
 		proc = Popen('git status -s', stdout=PIPE)
 		out, err = proc.communicate()
-		outList = out.split('\n')
-		#for i in (outList[1::2]):
-		for i in outList:
-			if i != '':
-			# len_message = len(message) + len(files) + len(i)
-			# if len(message) + len(files) + len(i) < summary_max_chars:
-				# print len_message
-				if count == 0:
-					files = files + i
-				else:
-					files = files + ',' + i
-				count+=1
-		if len(files) > 0:
-			files = '('+files+')'
-		size_string = str(len(message + ' ' + files))
-		print("git commit -m \"" + message + ' ' + files + "\"")
-		print("DEBUG:" + size_string)
+		if len(out) == 0:
+			print("Nothing to commit")
+		else:
+			outList = out.split('\n')
+			#for i in (outList[1::2]):
+			for i in outList:
+				if i != '':
+				# len_message = len(message) + len(files) + len(i)
+				# if len(message) + len(files) + len(i) < summary_max_chars:
+					# print len_message
+					if count == 0:
+						files = files + i
+					else:
+						files = files + ',' + i
+					count+=1
+			if len(files) > 0:
+				files = '('+files+')'
+			size_string = str(len(message + ' ' + files))
+			print("git commit -m \"" + message + ' ' + files + "\"")
+			print("DEBUG:" + size_string)
 
 class MessageBuildElementChain:
 
