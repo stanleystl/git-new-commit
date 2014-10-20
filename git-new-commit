@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import os
 from subprocess import call
 from subprocess import Popen, PIPE
 
@@ -39,7 +39,6 @@ class StdoutMessageWriter:
 				files = '('+files+')'
 			size_string = str(len(message + ' ' + files))
 			print("git commit -m \"" + message + ' ' + files + "\"")
-			#print("DEBUG:" + size_string)
 
 class MessageBuildElementChain:
 
@@ -58,7 +57,6 @@ class MessageBuildElementChain:
 					print(str(i) + " - " + option + ' (' + descripts[i-1] + ')')
 				selected_index = int(raw_input())
 			return options[selected_index - 1]
-
 
 	def call_successor(self, built_message):
 		if not (self.successor is None):
@@ -101,10 +99,26 @@ class RemarksMessageBuildElementChain(MessageBuildElementChain):
 			built_message += " - " + remarks
 		MessageBuildElementChain.call_successor(self, built_message)
 
+class SubProjectMessageBuildElementChain(MessageBuildElementChain):
+
+	def handle(self, built_message):
+		folderList = os.path.dirname(os.path.abspath(__file__))
+		folderList = folderList.split('\\')
+		subproject = ""
+		for i in folderList:
+			if(subproject == True):
+				subproject = i
+				break;
+			if(config['Project'] == i):
+				subproject = True
+		if len(subproject) > 0:
+			built_message += " [" + subproject + "]"
+		MessageBuildElementChain.call_successor(self, built_message)
+
 class WriterMessageBuildElementChain(MessageBuildElementChain):
 
 	def __init__(self, writer):
-			self.writer = writer
+		self.writer = writer
 
 	def handle(self, built_message):
 		self.writer.write(built_message)
