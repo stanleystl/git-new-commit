@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import os
+import re
 from subprocess import call
 from subprocess import Popen, PIPE
 
@@ -47,7 +48,7 @@ class MessageBuildElementChain:
 class FilesMessageBuildElementChain(MessageBuildElementChain):
 
 	def handle(self, built_message):
-		proc = Popen('git status -s', stdout=PIPE)
+		proc = Popen('git status -s', stdout=PIPE, shell=True)
 		out, err = proc.communicate()
 		if len(out) != 0:
 			outList = out.split('\n')
@@ -93,17 +94,16 @@ class RemarksMessageBuildElementChain(MessageBuildElementChain):
 class SubProjectMessageBuildElementChain(MessageBuildElementChain):
 
 	def handle(self, built_message):
-		folderList = os.path.dirname(os.path.abspath(__file__))
-		folderList = folderList.split('\\')
-		subproject = ""
-		for i in folderList:
-			if(subproject == True):
-				subproject = i
-				break;
-			if(config['Project'] == i):
-				subproject = True
-		if len(subproject) > 0:
-			built_message += " [" + subproject + "]"
+		proc = Popen('git diff --name-only --staged', stdout=PIPE, shell=True)
+		out, err = proc.communicate()
+		if len(out) != 0:
+			files = out.split('\n')
+			if '' in files: files.remove('')
+			if ' ' in files: files.remove(' ')
+			pattern = re.compile(config["subprojectregex"])
+			subprojects = [ pattern.search(f).groups(1)[0] for f in files if pattern.search(f) is not None ]
+			most_modified_subproject = max(set(subprojects), key=subprojects.count)
+			built_message += " - " + most_modified_subproject + " - "
 		MessageBuildElementChain.call_successor(self, built_message)
 
 class WriterMessageBuildElementChain(MessageBuildElementChain):
