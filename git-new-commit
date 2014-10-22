@@ -54,6 +54,7 @@ class FilesMessageBuildElementChain(MessageBuildElementChain):
 			outList = out.split('\n')
 			if '' in outList: outList.remove('')
 			if ' ' in outList: outList.remove(' ')
+			outList = [f for f in outList if not (f.startswith(" ") or f.startswith("?"))]
 			built_message += " (" + ", ".join(outList) + ")"
 		MessageBuildElementChain.call_successor(self, built_message)
 
@@ -102,8 +103,9 @@ class SubProjectMessageBuildElementChain(MessageBuildElementChain):
 			if ' ' in files: files.remove(' ')
 			pattern = re.compile(config["subprojectregex"])
 			subprojects = [ pattern.search(f).groups(1)[0] for f in files if pattern.search(f) is not None ]
-			most_modified_subproject = max(set(subprojects), key=subprojects.count)
-			built_message += " - " + most_modified_subproject + " - "
+			if len(subprojects) != 0:
+				most_modified_subproject = max(set(subprojects), key=subprojects.count)
+				built_message += " - " + most_modified_subproject + " - "
 		MessageBuildElementChain.call_successor(self, built_message)
 
 class WriterMessageBuildElementChain(MessageBuildElementChain):
