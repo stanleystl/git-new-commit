@@ -16,29 +16,7 @@ class GitMessageWriter:
 class StdoutMessageWriter:
 
 	def write(self, message):
-		files = ""
-		count = 0
-		proc = Popen('git status -s', stdout=PIPE)
-		out, err = proc.communicate()
-		if len(out) == 0:
-			print("Nothing to commit")
-		else:
-			outList = out.split('\n')
-			#for i in (outList[1::2]):
-			for i in outList:
-				if i != '':
-				# len_message = len(message) + len(files) + len(i)
-				# if len(message) + len(files) + len(i) < summary_max_chars:
-					# print len_message
-					if count == 0:
-						files = files + i[1:]
-					else:
-						files = files + ',' + i[1:]
-					count+=1
-			if len(files) > 0:
-				files = '('+files+')'
-			size_string = str(len(message + ' ' + files))
-			print("git commit -m \"" + message + ' ' + files + "\"")
+		print("git commit -m \"" + message + "\"")
 
 class MessageBuildElementChain:
 
@@ -65,6 +43,19 @@ class MessageBuildElementChain:
 	def chain(self, successor):
 		self.successor = successor
 		return successor
+
+class FilesMessageBuildElementChain(MessageBuildElementChain):
+
+	def handle(self, built_message):
+		proc = Popen('git status -s', stdout=PIPE)
+		out, err = proc.communicate()
+		if len(out) != 0:
+			outList = out.split('\n')
+			if '' in outList: outList.remove('')
+			if ' ' in outList: outList.remove(' ')
+			built_message += " (" + ", ".join(outList) + ")"
+		MessageBuildElementChain.call_successor(self, built_message)
+
 
 class LabelMessageBuildElementChain(MessageBuildElementChain):
 
