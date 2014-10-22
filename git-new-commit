@@ -12,7 +12,7 @@ execfile("new-commit.conf", config)
 class GitMessageWriter:
 	
 	def write(self, message):
-		call(["git commit", "-m", message])
+		call("git commit -m \"" + message + "\"", shell=True)
 
 class StdoutMessageWriter:
 
@@ -132,7 +132,7 @@ def build_chain(elements):
 		if chain_root is None:
 			chain_root = chain_element
 		chain = chain_element if chain is None else chain.chain(chain_element)
-	writer = StdoutMessageWriter()
+	writer = StdoutMessageWriter() if config["debug"] else GitMessageWriter()
 	chain.chain(WriterMessageBuildElementChain(writer))
 	return chain_root
 
