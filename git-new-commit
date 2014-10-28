@@ -5,9 +5,10 @@ from subprocess import call
 from subprocess import Popen, PIPE
 
 summary_max_chars = 50
-
+confPath = "new-commit.conf"
 config = {}
-execfile("new-commit.conf", config)
+
+execfile(confPath, config)
 
 class GitMessageWriter:
 	
