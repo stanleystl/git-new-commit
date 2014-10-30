@@ -8,6 +8,9 @@
 2. Coloque a pasta do projeto git-new-commit no path. Digite no console: `PATH=$PATH:<caminho>`. Exemplo: PATH=$PATH:/D/GitHub/git-new-commit
 3. Para executar, digite: `git new-commit` 
 
+Setando variáveis de ambiente OSX
+http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x
+
 ## Instruções ##
 
 O git-new-commit substitui o comando `git commit -m` oficial do git por um novo processo de construção da mensagem de commit. O processo é o mesmo:
