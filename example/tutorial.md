@@ -6,6 +6,10 @@
 
 **BUG-FIX**
 
+0) Execute o exemplo e veja que não está rodando.
+
+    $ python example.py
+
 1) Adicione as linhas de código que estão faltando para que ele execute corretamente logo após a linha "BUG-FIX" no início.
 
     import sys
