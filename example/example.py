@@ -46,6 +46,7 @@ def main():
     t = turtle.Turtle()
 
     # OPTIMIZATION (Add code below)
+	t.speed(0)
     #
 
     border(t, screen_x, screen_y)
