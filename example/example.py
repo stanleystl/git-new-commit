@@ -52,6 +52,10 @@ def main():
 
     # NEW-FEATURE (Add code below)
     #
+    colors = ['red', 'orange', 'yellow', 'green', 'blue', 'violet']
+    t.pensize(3)
+    for i, color in enumerate(colors):
+        square(t, (screen_y / 2) / 10 * (i+1), color)
 
     print('Hit any key to exit')
     dummy = input()
