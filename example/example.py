@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 # BUG-FIX
+import sys
+import turtle
 
 def border(t, screen_x, screen_y):
     """(Turtle, int, int)
