@@ -13,10 +13,11 @@ def border(t, screen_x, screen_y):
     t.home()
 
     # BUG INSERIDO
-    t.forward(screen_x / 2)
-    t.right(90)
-    t.forward(screen_y / 2)
-    t.setheading(180)
+    t.forward(screen_x / 8)
+    t.right(45)
+    t.forward(screen_y / 7)
+    t.setheading(120)
+
     
     t.pencolor('black')
     t.pendown()
@@ -46,7 +47,7 @@ def main():
     t = turtle.Turtle()
 
     # OPTIMIZATION (Add code below)
-	t.speed(0)
+    t.speed(0)
     #
 
     border(t, screen_x, screen_y)
